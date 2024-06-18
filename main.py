@@ -1,5 +1,9 @@
+from app.providers import ImageGeneratorContext
+
+
 def main():
-    pass
+    with ImageGeneratorContext() as client:
+        client.generate("xyu")
 
 
 if __name__ == "__main__":
