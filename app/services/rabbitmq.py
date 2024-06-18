@@ -98,6 +98,90 @@ class RabbitMQListener:
             logger.error(f"Error closing the RabbitMQ connection: {e}")
 
 
+class RabbitMQPublisher:
+    def __init__(
+        self,
+        queue,
+    ) -> None:
+        """
+        Initialize the RabbitMQPublisher by establishing a connection to the RabbitMQ server
+        and setting up the channel.
+
+        :param queue: The name of the queue to publish messages to.
+        """
+        self.queue = queue
+        self.connection: BlockingConnection = None
+        self.channel: BlockingChannel = None
+        self._connect()
+
+    def _connect(self) -> None:
+        """
+        Establish a connection to the RabbitMQ server and set up the channel.
+        """
+        try:
+            logger.info("Peering to RabbitMQ Server")
+
+            credentials = PlainCredentials(
+                username=rabbit_mq_config.USERNAME,
+                password=rabbit_mq_config.PASSWORD,
+                erase_on_connect=True,
+            )
+
+            conn_params = ConnectionParameters(
+                host=rabbit_mq_config.HOST,
+                port=rabbit_mq_config.PORT,
+                credentials=credentials,
+            )
+
+            self.connection = BlockingConnection(conn_params)
+
+            self.channel = self.connection.channel()
+
+            self.channel.queue_declare(queue=self.queue, durable=True)
+
+            logger.info(
+                f"Connected to RabbitMQ server and declared queue: {self.queue}"
+            )
+        except Exception as e:
+            logger.error(f"Error connecting to RabbitMQ: {e}")
+            self._close()
+
+    def send(self, message: str):
+        """
+        Send a message to the specified RabbitMQ queue.
+
+        :param message: The message to be sent.
+        """
+        if not self.channel or self.channel.is_closed:
+            self._connect()
+
+        try:
+            self.channel.basic_publish(
+                exchange="",
+                routing_key=self.queue,
+                body=message,
+                properties=pika.BasicProperties(delivery_mode=2),
+            )
+            logger.info(f"Sent message: {message}")
+        except Exception as e:
+            logger.error(f"Error sending message: {e}")
+            self.close()
+
+    def close(self) -> None:
+        """
+        Close the channel and the connection to RabbitMQ.
+        """
+        try:
+            if self.channel.is_open:
+                self.channel.close()
+                logger.info("RabbitMQ Channel closed.")
+            if self.connection.is_open:
+                self.connection.close()
+                logger.info("RabbitMQ connection closed.")
+        except Exception as e:
+            logger.error(f"Error closing the RabbitMQ connection: {e}")
+
+
 class RabbitMQContext:
     def __init__(
         self,
