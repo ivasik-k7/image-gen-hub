@@ -1,0 +1,17 @@
+services:
+  app:
+    container_name: "diffusion_app_container"
+    build:
+      context: .
+    ports:
+      - 8000:8000
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+  rabbitmq:
+    image: rabbitmq:alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=secret
+    ports:
+      - "5672:5672"
