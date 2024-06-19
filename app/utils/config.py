@@ -12,6 +12,10 @@ class AppConfig:
     def MOBIUS_MODEL(self):
         return os.environ.get("MOBIUS_MODEL", "Corcelio/mobius")
 
+    @property
+    def HASH_KEY(self):
+        return os.environ.get("HASH_KEY", "7bFxF6duGiZsXc6PBkGo9EO6PASszXXe")
+
 
 class RabbitMQConfig:
     @property
