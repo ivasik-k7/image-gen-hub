@@ -52,3 +52,4 @@ env/
 # Dev related
 **/TODO.md
 **/todo.md
+**/*.example.yaml

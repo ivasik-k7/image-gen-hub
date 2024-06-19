@@ -1,29 +1,64 @@
-# Docker
-# Build a Docker image
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger:
-- master
+  - master
 
 resources:
-- repo: self
+  - repo: self
+
+pool:
+  vmImage: "ubuntu-latest"
 
 variables:
-  tag: '$(Build.BuildId)'
+  tag: "$(Build.BuildId)"
+  PYTHON_VERSION: "3.11.3"
+  POETRY_VERSION: "1.8.2"
 
-stages:
-- stage: Build
-  displayName: Build image
-  jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: ubuntu-latest
+jobs:
+  - job: InstallJob
+    displayName: "Install"
     steps:
-    - task: Docker@2
-      displayName: Build an image
-      inputs:
-        command: build
-        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-        tags: |
-          $(tag)
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: $(PYTHON_VERSION)
+          addToPath: true
+
+      - script: |
+          python -m pip install --upgrade pip
+          pip install poetry
+        displayName: "Install Poetry"
+
+      - script: poetry install
+        displayName: "Install Dependencies"
+  - job: LintJob
+    displayName: "Lint"
+    dependsOn: InstallJob
+    steps:
+      - script: poetry run ruff check .
+        displayName: "Run Ruff"
+
+  - job: TestJob
+    displayName: "Test"
+    dependsOn: InstallJob
+    steps:
+      - script: |
+          poetry run pytest
+          poetry run pytest --cov=app --cov-report=xml
+        displayName: "Run Pytest"
+      - task: PublishCodeCoverageResults@1
+        inputs:
+          codeCoverageTool: "Cobertura"
+          summaryFileLocation: "coverage.xml"
+          reportDirectory: "htmlcov"
+          failIfCoverageEmpty: true
+        displayName: "Publish Code Coverage Results"
+
+  - job: BuildJob
+    displayName: "Build"
+    dependsOn: TestJob
+    steps:
+      - task: Docker@2
+        displayName: Build an image
+        inputs:
+          command: build
+          dockerfile: "$(Build.SourcesDirectory)/Dockerfile"
+          tags: |
+            $(tag)
