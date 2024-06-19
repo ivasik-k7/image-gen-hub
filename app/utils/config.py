@@ -8,6 +8,10 @@ class AppConfig:
             "STABLE_DIFFUSION_MODEL", "stabilityai/stable-diffusion-2-1"
         )
 
+    @property
+    def MOBIUS_MODEL(self):
+        return os.environ.get("MOBIUS_MODEL", "Corcelio/mobius")
+
 
 class RabbitMQConfig:
     @property
@@ -31,5 +35,5 @@ class RabbitMQConfig:
         return os.environ.get("RABBIT_MQ_PASSWORD", "secret")
 
 
-config = AppConfig
+config = AppConfig()
 rabbit_mq_config = RabbitMQConfig()

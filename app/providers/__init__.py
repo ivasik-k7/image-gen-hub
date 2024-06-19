@@ -10,4 +10,5 @@ class ImageGeneratorProvider(ABC):
 from app.providers.dalle import DalleGeneratorProvider  # noqa
 from app.providers.openai import OpenAIGeneratorProvider  # noqa
 from app.providers.stable_diffusion import StableDiffusionProvider  # noqa
+from app.providers.mobius import MobiusGeneratorProvider  # noqa
 from app.providers.context import ImageGeneratorContext  # noqa
