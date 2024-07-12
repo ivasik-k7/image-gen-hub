@@ -1,0 +1,22 @@
+#
+
+name: Dynatrace Integration
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Trigger Dynatrace Deployment Event
+        env:
+          DYNATRACE_BASE_URL: "https://ewm94767.live.dynatrace.com/api/v2"
+          DYNATRACE_API_TOKEN: ${{ secrets.DYNATRACE_API_TOKEN }}
+        run: bash ./scripts/dynatrace.sh
