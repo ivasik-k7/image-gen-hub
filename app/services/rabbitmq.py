@@ -144,7 +144,7 @@ class RabbitMQPublisher:
             )
         except Exception as e:
             logger.error(f"Error connecting to RabbitMQ: {e}")
-            self._close()
+            self.close()
 
     def send(self, message: str):
         """

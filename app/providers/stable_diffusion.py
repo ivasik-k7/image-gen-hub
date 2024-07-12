@@ -29,6 +29,7 @@ class StableDiffusionProvider(ImageGeneratorProvider):
     def generate(self, prompt: str, **kwargs):
         logger.info(f"Stable diffusion launched with the prompt of {prompt}")
         logger.info(f"Stable diffusion kwargs {kwargs}")
+
         self._load_pipeline()
 
         if not self.pipe:
@@ -39,6 +40,7 @@ class StableDiffusionProvider(ImageGeneratorProvider):
             "negative_prompt",
             "disfigured, low quality, text, ugly",
         )
+
         height = kwargs.get("height", 768)
         width = kwargs.get("width", 768)
         high_noise_frac = kwargs.get("high_noise_frac", 0.8)

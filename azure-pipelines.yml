@@ -19,9 +19,6 @@ stages:
           image: "ikovtun7/ubuntu-python-poetry:latest"
           options: --user root
         steps:
-          - script: bash scripts/tools_verifier.sh
-            displayName: "Image debug"
-
           - script: poetry install
             displayName: "Install Dependencies"
 

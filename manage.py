@@ -20,10 +20,20 @@ def message_processor(
     logger.info(f"Processing message: {body.decode()}")
 
 
-async def main():
-    with RabbitMQContext() as client:
+async def openai_listener():
+    with RabbitMQContext(queue="openai") as client:
         while True:
             client.consume(message_processor)
+
+
+async def sd_listener():
+    with RabbitMQContext(queue="stable_diffusion") as client:
+        while True:
+            client.consume(message_processor)
+
+
+async def main():
+    await asyncio.gather(sd_listener(), openai_listener())
 
 
 if __name__ == "__main__":
